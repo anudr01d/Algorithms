@@ -1,5 +1,5 @@
 # Algorithms
-Algorithms & Data-structures implementation written in Java
+Algorithms & Data structures implementation written in Java
 
 
 * Sorting Algorithms
