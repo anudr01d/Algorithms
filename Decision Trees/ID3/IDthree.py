@@ -1,4 +1,6 @@
 import traceback
+import math 
+
 
 class ID3(object):
     featureCount = 0
@@ -19,12 +21,6 @@ class ID3(object):
     def input(cls):
         dataset, input_file, output_file = input("Enter names of the files dataset input-partition output-partition : ").split()    
         
-        # Read the dataset file
-        # with open(dataset) as file_object:
-        #     lines = file_object.readlines()
-        #     for line in lines:
-        #         print(line)
-        
         #Output file
         outputFile = output_file
 
@@ -43,21 +39,18 @@ class ID3(object):
         if s1 == 0 and s2 == 0:
             ans = 0
         elif s1 == 0 and s2 != 0:
-            ans = (-1) * (s2 * ((log(s2) / log(2))))
+            ans = (-1) * (s2 * ((math.log(s2) / math.log(2))))
         elif s1 != 0 and s2 == 0:
-            ans = (-1) * (s1 * ((log(s1) / log(2))))
+            ans = (-1) * (s1 * ((math.log(s1) / math.log(2))))
         else:
-            ans = (-s1 * (log(s1) / log(2)) - (s2 * (log(s2) / log(2))))
+            ans = (-s1 * (math.log(s1) / math.log(2)) - (s2 * (math.log(s2) / math.log(2))))
         if ans == -0.0:
-            print("Entropy result : ans : " + 0)
             return 0
         else:
-            print("Entropy result : ans : " + ans)
             return ans
 
     @classmethod
     def calculateConditionalEntropy(cls, noCount0, yesCount0, noCount1, yesCount1, yesCount2, noCount2):
-        """ generated source for method calculateConditionalEntropy """
         count0 = noCount0 + yesCount0
         count1 = noCount1 + yesCount1
         count2 = noCount2 + yesCount2
@@ -127,8 +120,9 @@ class ID3(object):
                     j += 1
                 cls.classEntropy[i] = cls.calculateEntropy(noCount, yesCount)
                 i += 1
-            cls.conditionalEntropy = [None] * cls.partitionCount
-            cls.informationGain = [None] * cls.partitionCount
+
+            cls.conditionalEntropy = [ [ None for i in range(cls.featureCount - 1) ] for j in range(cls.partitionCount) ]
+            cls.informationGain = [ [ None for i in range(cls.featureCount - 1) ] for j in range(cls.partitionCount) ]
             i = 0
             while i < cls.partitionCount:
                 j = 0
@@ -158,13 +152,13 @@ class ID3(object):
                     cls.informationGain[i][j] = cls.classEntropy[i] - cls.conditionalEntropy[i][j]
                     j += 1
                 i += 1
-            print("Entropy calc successful")
+            print("Entropy calculation successful")
 
             cls.findMaxGainFeature()
             print("Max gain successful")
 
             cls.writeOutput()
-            print("output successful")
+            print("output file created successfully")
         except Exception as e:
             traceback.print_exc()
             print("Partition unsuccessful...")
@@ -181,28 +175,28 @@ class ID3(object):
                     cls.partitionCount += 1
 
             cls.classNames = [None] * cls.partitionCount
-            cls.classData = [None] * cls.partitionCount
+            cls.classData = [ [ None for i in range(cls.instanceCount) ] for j in range(cls.partitionCount) ]
             cls.classCount = [None] * cls.partitionCount
             j = 0
             
-            for line in lines:    
+            for line in lines:
+                line = line.rstrip()
                 values = line.split(" ")
                 cls.classNames[j] = values[0]
                 cls.classCount[j] = 0
                 i = 0
-                while i < len(values):
+                while i < len(values)-1:
                     cls.classCount[j] += 1
                     cls.classData[j][i] = int(values[i + 1])
                     i += 1
                 j += 1
             
         except Exception as ex:
-            print("Specified Partition file not found in the same directory.")
+            print("Partition file not found.")
             traceback.print_exc()
 
     @classmethod
     def parseDataset(cls, fileName):
-        """ generated source for method parseDataset """
         print(fileName)
         try:
             with open(fileName) as file_object:
@@ -226,7 +220,7 @@ class ID3(object):
                     line = fp.readline().rstrip()
 
         except Exception as ex:
-            print("Specified Dataset file not found in the same directory.")
+            print("Dataset file not found.")
             traceback.print_exc()
 
     @classmethod
@@ -243,27 +237,27 @@ class ID3(object):
                     j = 0
                     while j < cls.classCount[i]:
                         if cls.inputData[cls.classData[i][j] - 1][cls.splitFeatureID] == 1:
-                            split1 = split1 + " " + cls.classData[i][j]
+                            split1 = str(split1) + " " + str(cls.classData[i][j])
                         if cls.inputData[cls.classData[i][j] - 1][cls.splitFeatureID] == 0:
-                            split2 = split2 + " " + cls.classData[i][j]
+                            split2 = str(split2) + " " + str(cls.classData[i][j])
                         if cls.inputData[cls.classData[i][j] - 1][cls.splitFeatureID] == 2:
-                            split3 = split3 + " " + cls.classData[i][j]
+                            split3 = str(split3) + " " + str(cls.classData[i][j])
                         j += 1
-                    output.write(split1)
+                    output.write(str(split1))
                     output.write("\n")
-                    output.write(split2)
+                    output.write(str(split2))
                     output.write("\n")
-                    output.write(split3)
+                    output.write(str(split3))
                     if i < cls.partitionCount:
                         output.write("\n")
-                    print("Partition " + cls.classNames[i] + " was replaced with partitions " + cls.classNames[i] + "0" + "," + cls.classNames[i] + "1" + " using Feature " + (cls.splitFeatureID + 1))
+                    print("Partition ", cls.classNames[i], " was replaced with partitions ", cls.classNames[i], "0", ",", cls.classNames[i], "1" , " using Feature " , (cls.splitFeatureID + 1))
                 else:
                     line = cls.classNames[i]
                     j = 0
                     while j < cls.classCount[i]:
-                        line = line + " " + cls.classData[i][j]
+                        line = str(line) + " " + str(cls.classData[i][j])
                         j += 1
-                    output.write(line)
+                    output.write(str(line))
                     if i < cls.partitionCount:
                         output.write("\n")
                 i += 1
