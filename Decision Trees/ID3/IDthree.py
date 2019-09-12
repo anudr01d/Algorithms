@@ -1,7 +1,6 @@
 import traceback
 import math 
 
-
 class ID3(object):
     featureCount = 0
     instanceCount = 0
@@ -75,7 +74,6 @@ class ID3(object):
 
     @classmethod
     def findMaxGainFeature(cls):
-        """ generated source for method findMaxGainFeature """
         maxF = 0
         i = 0
         while i < cls.partitionCount:
@@ -165,7 +163,6 @@ class ID3(object):
 
     @classmethod
     def parsePartitions(cls, fileName):
-        """ generated source for method parsePartitions """
         line = None
         try:
             # Read the dataset file
