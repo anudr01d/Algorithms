@@ -1,7 +1,7 @@
 import traceback
 import math 
 
-class ID3(object):
+class IDthree(object):
     featureCount = 0
     instanceCount = 0
     partitionCount = 0
@@ -265,4 +265,4 @@ class ID3(object):
 
 if __name__ == '__main__':
     import sys
-    ID3.main(sys.argv)
+    IDthree.main(sys.argv)
