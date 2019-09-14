@@ -5,7 +5,7 @@ class IDthree(object):
     featureCount = 0
     instanceCount = 0
     partitionCount = 0
-    outputFile = "Output"
+    outputFile = "output.txt"
     inputData = []
     classCount = []
     classNames = []
