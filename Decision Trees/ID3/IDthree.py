@@ -2,19 +2,19 @@ import traceback
 import math 
 
 class IDthree(object):
-    featureCount = 0
-    instanceCount = 0
-    partitionCount = 0
+    ftCount = 0
+    insCount = 0
+    partCount = 0
     outputFile = "output.txt"
-    inputData = []
-    classCount = []
-    classNames = []
-    classData = []
-    classEntropy = []
-    conditionalEntropy = []
-    informationGain = []
-    splitClassID = int()
-    splitFeatureID = int()
+    inpData = []
+    clsCount = []
+    clsNames = []
+    clsData = []
+    clsEntropy = []
+    condEntropy = []
+    infoGain = []
+    spClsID = int()
+    spFeatID = int()
 
     @classmethod
     def input(cls):
@@ -24,13 +24,13 @@ class IDthree(object):
         outputFile = output_file
 
         #Parse Dataset
-        cls.parseDataset(dataset)
+        cls.parseData(dataset)
         
         #Parse Partition
         cls.parsePartitions(input_file)
 
     @classmethod
-    def calculateEntropy(cls, noCount, yesCount):
+    def calcEntropy(cls, noCount, yesCount):
         ans = 0
         totalCount = noCount + yesCount
         s1 = (noCount / totalCount)
@@ -49,7 +49,7 @@ class IDthree(object):
             return ans
 
     @classmethod
-    def calculateConditionalEntropy(cls, noCount0, yesCount0, noCount1, yesCount1, yesCount2, noCount2):
+    def calcCondEntropy(cls, noCount0, yesCount0, noCount1, yesCount1, yesCount2, noCount2):
         count0 = noCount0 + yesCount0
         count1 = noCount1 + yesCount1
         count2 = noCount2 + yesCount2
@@ -57,74 +57,73 @@ class IDthree(object):
         if count0 == 0 and count1 == 0 and count2 == 0:
             return 0
         if count0 == 0 and count1 == 0 and count2 != 0:
-            return (count2 / totalCount) * cls.calculateEntropy(noCount2, yesCount2)
+            return (count2 / totalCount) * cls.calcEntropy(noCount2, yesCount2)
         if count0 == 0 and count1 != 0 and count2 == 0:
-            return (count1 / totalCount) * cls.calculateEntropy(noCount1, yesCount1)
+            return (count1 / totalCount) * cls.calcEntropy(noCount1, yesCount1)
         if count0 == 0 and count1 != 0 and count2 != 0:
-            return (count2 / totalCount) * cls.calculateEntropy(noCount2, yesCount2) + (count1 / totalCount) * cls.calculateEntropy(noCount1, yesCount1)
+            return (count2 / totalCount) * cls.calcEntropy(noCount2, yesCount2) + (count1 / totalCount) * cls.calcEntropy(noCount1, yesCount1)
         if count0 != 0 and count1 == 0 and count2 == 0:
-            return (count0 / totalCount) * cls.calculateEntropy(noCount0, yesCount0)
+            return (count0 / totalCount) * cls.calcEntropy(noCount0, yesCount0)
         if count0 != 0 and count1 == 0 and count2 != 0:
-            return (count0 / totalCount) * cls.calculateEntropy(noCount0, yesCount0) + (count2 / totalCount) * cls.calculateEntropy(noCount2, yesCount2)
+            return (count0 / totalCount) * cls.calcEntropy(noCount0, yesCount0) + (count2 / totalCount) * cls.calcEntropy(noCount2, yesCount2)
         if count0 != 0 and count1 != 0 and count2 == 0:
-            return (count0 / totalCount) * cls.calculateEntropy(noCount0, yesCount0) + (count1 / totalCount) * cls.calculateEntropy(noCount1, yesCount1)
+            return (count0 / totalCount) * cls.calcEntropy(noCount0, yesCount0) + (count1 / totalCount) * cls.calcEntropy(noCount1, yesCount1)
         if count0 != 0 and count1 != 0 and count2 != 0:
-            return (count0 / totalCount) * cls.calculateEntropy(noCount0, yesCount0) + (count1 / totalCount) * cls.calculateEntropy(noCount1, yesCount1) + (count2 / totalCount) * cls.calculateEntropy(noCount2, yesCount2)
+            return (count0 / totalCount) * cls.calcEntropy(noCount0, yesCount0) + (count1 / totalCount) * cls.calcEntropy(noCount1, yesCount1) + (count2 / totalCount) * cls.calcEntropy(noCount2, yesCount2)
         return 0
 
     @classmethod
-    def findMaxGainFeature(cls):
+    def findMaxGain(cls):
         maxF = 0
         i = 0
-        while i < cls.partitionCount:
+        while i < cls.partCount:
             f = 0
             maxValue = 0
             maxFeatureID = 0
             j = 0
-            while j < cls.featureCount - 1:
-                if cls.informationGain[i][j] > maxValue:
-                    maxValue = cls.informationGain[i][j]
+            while j < cls.ftCount - 1:
+                if cls.infoGain[i][j] > maxValue:
+                    maxValue = cls.infoGain[i][j]
                     maxFeatureID = j
                 j += 1
-            f = maxValue * (float(cls.classCount[i]) / cls.instanceCount)
+            f = maxValue * (float(cls.clsCount[i]) / cls.insCount)
             if f > maxF:
                 maxF = f
-                cls.splitClassID = i
-                cls.splitFeatureID = maxFeatureID
+                cls.spClsID = i
+                cls.spFeatID = maxFeatureID
             i += 1
 
     @classmethod
     def main(cls, args):
-        """ main method """
         try:
             cls.input()
             print("Input successful")
 
-            cls.classEntropy = [None] * cls.partitionCount
+            cls.clsEntropy = [None] * cls.partCount
             i = 0
-            while i < cls.partitionCount:
+            while i < cls.partCount:
                 yesCount = 0
                 noCount = 0
                 tCount = 0
                 j = 0
-                while j < cls.instanceCount:
+                while j < cls.insCount:
                     k = 0
-                    while k < cls.classCount[i]:
-                        if cls.classData[i][k] == (j + 1) and cls.inputData[j][cls.featureCount - 1] == 1:
+                    while k < cls.clsCount[i]:
+                        if cls.clsData[i][k] == (j + 1) and cls.inpData[j][cls.ftCount - 1] == 1:
                             yesCount += 1
-                        if cls.classData[i][k] == (j + 1) and cls.inputData[j][cls.featureCount - 1] == 0:
+                        if cls.clsData[i][k] == (j + 1) and cls.inpData[j][cls.ftCount - 1] == 0:
                             noCount += 1
                         k += 1
                     j += 1
-                cls.classEntropy[i] = cls.calculateEntropy(noCount, yesCount)
+                cls.clsEntropy[i] = cls.calcEntropy(noCount, yesCount)
                 i += 1
 
-            cls.conditionalEntropy = [ [ None for i in range(cls.featureCount - 1) ] for j in range(cls.partitionCount) ]
-            cls.informationGain = [ [ None for i in range(cls.featureCount - 1) ] for j in range(cls.partitionCount) ]
+            cls.condEntropy = [ [ None for i in range(cls.ftCount - 1) ] for j in range(cls.partCount) ]
+            cls.infoGain = [ [ None for i in range(cls.ftCount - 1) ] for j in range(cls.partCount) ]
             i = 0
-            while i < cls.partitionCount:
+            while i < cls.partCount:
                 j = 0
-                while j < cls.featureCount - 1:
+                while j < cls.ftCount - 1:
                     yesCount0 = 0
                     noCount0 = 0
                     yesCount1 = 0
@@ -132,27 +131,27 @@ class IDthree(object):
                     noCount2 = 0
                     yesCount2 = 0
                     k = 0
-                    while k < cls.classCount[i]:
-                        if cls.inputData[cls.classData[i][k] - 1][j] == 0 and cls.inputData[cls.classData[i][k] - 1][cls.featureCount - 1] == 0:
+                    while k < cls.clsCount[i]:
+                        if cls.inpData[cls.clsData[i][k] - 1][j] == 0 and cls.inpData[cls.clsData[i][k] - 1][cls.ftCount - 1] == 0:
                             noCount0 += 1
-                        elif cls.inputData[cls.classData[i][k] - 1][j] == 0 and cls.inputData[cls.classData[i][k] - 1][cls.featureCount - 1] == 1:
+                        elif cls.inpData[cls.clsData[i][k] - 1][j] == 0 and cls.inpData[cls.clsData[i][k] - 1][cls.ftCount - 1] == 1:
                             yesCount0 += 1
-                        elif cls.inputData[cls.classData[i][k] - 1][j] == 1 and cls.inputData[cls.classData[i][k] - 1][cls.featureCount - 1] == 0:
+                        elif cls.inpData[cls.clsData[i][k] - 1][j] == 1 and cls.inpData[cls.clsData[i][k] - 1][cls.ftCount - 1] == 0:
                             noCount1 += 1
-                        elif cls.inputData[cls.classData[i][k] - 1][j] == 1 and cls.inputData[cls.classData[i][k] - 1][cls.featureCount - 1] == 1:
+                        elif cls.inpData[cls.clsData[i][k] - 1][j] == 1 and cls.inpData[cls.clsData[i][k] - 1][cls.ftCount - 1] == 1:
                             yesCount1 += 1
-                        elif cls.inputData[cls.classData[i][k] - 1][j] == 2 and cls.inputData[cls.classData[i][k] - 1][cls.featureCount - 1] == 0:
+                        elif cls.inpData[cls.clsData[i][k] - 1][j] == 2 and cls.inpData[cls.clsData[i][k] - 1][cls.ftCount - 1] == 0:
                             noCount2 += 1
-                        elif cls.inputData[cls.classData[i][k] - 1][j] == 2 and cls.inputData[cls.classData[i][k] - 1][cls.featureCount - 1] == 1:
+                        elif cls.inpData[cls.clsData[i][k] - 1][j] == 2 and cls.inpData[cls.clsData[i][k] - 1][cls.ftCount - 1] == 1:
                             yesCount2 += 1
                         k += 1
-                    cls.conditionalEntropy[i][j] = cls.calculateConditionalEntropy(noCount0, yesCount0, noCount1, yesCount1, noCount2, yesCount2)
-                    cls.informationGain[i][j] = cls.classEntropy[i] - cls.conditionalEntropy[i][j]
+                    cls.condEntropy[i][j] = cls.calcCondEntropy(noCount0, yesCount0, noCount1, yesCount1, noCount2, yesCount2)
+                    cls.infoGain[i][j] = cls.clsEntropy[i] - cls.condEntropy[i][j]
                     j += 1
                 i += 1
             print("Entropy calculation successful")
 
-            cls.findMaxGainFeature()
+            cls.findMaxGain()
             print("Max gain successful")
 
             cls.writeOutput()
@@ -169,22 +168,22 @@ class IDthree(object):
             with open(fileName) as file_object:
                 lines = file_object.readlines()
                 for line in lines:
-                    cls.partitionCount += 1
+                    cls.partCount += 1
 
-            cls.classNames = [None] * cls.partitionCount
-            cls.classData = [ [ None for i in range(cls.instanceCount) ] for j in range(cls.partitionCount) ]
-            cls.classCount = [None] * cls.partitionCount
+            cls.clsNames = [None] * cls.partCount
+            cls.clsData = [ [ None for i in range(cls.insCount) ] for j in range(cls.partCount) ]
+            cls.clsCount = [None] * cls.partCount
             j = 0
             
             for line in lines:
                 line = line.rstrip()
                 values = line.split(" ")
-                cls.classNames[j] = values[0]
-                cls.classCount[j] = 0
+                cls.clsNames[j] = values[0]
+                cls.clsCount[j] = 0
                 i = 0
                 while i < len(values)-1:
-                    cls.classCount[j] += 1
-                    cls.classData[j][i] = int(values[i + 1])
+                    cls.clsCount[j] += 1
+                    cls.clsData[j][i] = int(values[i + 1])
                     i += 1
                 j += 1
             
@@ -193,15 +192,15 @@ class IDthree(object):
             traceback.print_exc()
 
     @classmethod
-    def parseDataset(cls, fileName):
+    def parseData(cls, fileName):
         print(fileName)
         try:
             with open(fileName) as file_object:
                 line = file_object.readline().rstrip()
                 countString = line.split(" ")
-                cls.instanceCount = int(countString[0])
-                cls.featureCount = int(countString[1])
-                cls.inputData = [ [ None for i in range(cls.featureCount) ] for j in range(cls.instanceCount) ]
+                cls.insCount = int(countString[0])
+                cls.ftCount = int(countString[1])
+                cls.inpData = [ [ None for i in range(cls.ftCount) ] for j in range(cls.insCount) ]
                 rowCount = 0
 
             with open(fileName) as fp:
@@ -211,7 +210,7 @@ class IDthree(object):
                     features = line.split(" ")
                     i = 0
                     while i<len(features):
-                        cls.inputData[rowCount][i] = int(features[i])
+                        cls.inpData[rowCount][i] = int(features[i])
                         i += 1
                     rowCount += 1
                     line = fp.readline().rstrip()
@@ -226,36 +225,36 @@ class IDthree(object):
             output = open(cls.outputFile, "w") 
             line = ""
             i = 0
-            while i < cls.partitionCount:
-                if i == cls.splitClassID:
-                    split1 = cls.classNames[i] + "0"
-                    split2 = cls.classNames[i] + "1"
-                    split3 = cls.classNames[i] + "2"
+            while i < cls.partCount:
+                if i == cls.spClsID:
+                    split1 = cls.clsNames[i] + "0"
+                    split2 = cls.clsNames[i] + "1"
+                    split3 = cls.clsNames[i] + "2"
                     j = 0
-                    while j < cls.classCount[i]:
-                        if cls.inputData[cls.classData[i][j] - 1][cls.splitFeatureID] == 1:
-                            split1 = str(split1) + " " + str(cls.classData[i][j])
-                        if cls.inputData[cls.classData[i][j] - 1][cls.splitFeatureID] == 0:
-                            split2 = str(split2) + " " + str(cls.classData[i][j])
-                        if cls.inputData[cls.classData[i][j] - 1][cls.splitFeatureID] == 2:
-                            split3 = str(split3) + " " + str(cls.classData[i][j])
+                    while j < cls.clsCount[i]:
+                        if cls.inpData[cls.clsData[i][j] - 1][cls.spFeatID] == 1:
+                            split1 = str(split1) + " " + str(cls.clsData[i][j])
+                        if cls.inpData[cls.clsData[i][j] - 1][cls.spFeatID] == 0:
+                            split2 = str(split2) + " " + str(cls.clsData[i][j])
+                        if cls.inpData[cls.clsData[i][j] - 1][cls.spFeatID] == 2:
+                            split3 = str(split3) + " " + str(cls.clsData[i][j])
                         j += 1
                     output.write(str(split1))
                     output.write("\n")
                     output.write(str(split2))
                     output.write("\n")
                     output.write(str(split3))
-                    if i < cls.partitionCount:
+                    if i < cls.partCount:
                         output.write("\n")
-                    print("Partition ", cls.classNames[i], " was replaced with partitions ", cls.classNames[i], "0", ",", cls.classNames[i], "1" , " using Feature " , (cls.splitFeatureID + 1))
+                    print("Partition "+ str(cls.clsNames[i]) + " was replaced with partitions " + str(cls.clsNames[i]) + "0" + "," + str(cls.clsNames[i]) + "1" + " using Feature " + str((cls.spFeatID + 1)))
                 else:
-                    line = cls.classNames[i]
+                    line = cls.clsNames[i]
                     j = 0
-                    while j < cls.classCount[i]:
-                        line = str(line) + " " + str(cls.classData[i][j])
+                    while j < cls.clsCount[i]:
+                        line = str(line) + " " + str(cls.clsData[i][j])
                         j += 1
                     output.write(str(line))
-                    if i < cls.partitionCount:
+                    if i < cls.partCount:
                         output.write("\n")
                 i += 1
             output.close() 
